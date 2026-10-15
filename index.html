@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Inter','Noto Sans Malayalam', sans-serif; }
+       .hidden { display: none!important; }
+       .menu-card.active { background: #4f46e5; color: white; border-color: #4f46e5; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex justify-center items-center p-4">
+
+    <!-- LOGIN -->
+    <div id="loginPage" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm text-center">
+        <h2 class="text-2xl font-bold mb-6">അഡ്മിൻ ലോഗിൻ</h2>
+        <div class="text-left mb-4">
+            <label class="text-sm font-semibold">യൂസർനെയിം:</label>
+            <input id="usernameInput" class="w-full mt-1 p-3 border rounded-xl">
+        </div>
+        <div class="text-left mb-4">
+            <label class="text-sm font-semibold">പാസ്‌വേർഡ്:</label>
+            <input id="passwordInput" type="password" class="w-full mt-1 p-3 border rounded-xl">
+        </div>
+        <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-bold hover:bg-indigo-700">ലോഗിൻ ചെയ്യുക</button>
+        <div id="errorMsg" class="text-red-500 text-sm mt-3"></div>
+        <p class="text-xs text-slate-400 mt-3">admin: <b>pikachu</b> | gmail: <b>animesensi13@gmail.com</b></p>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboardPage" class="hidden bg-white p-6 rounded-2xl shadow-xl w-full max-w-5xl">
+        <div class="flex justify-between items-center border-b pb-4 mb-6">
+            <h1 class="text-xl font-bold">സ്വാഗതം, അഡ്മിൻ</h1>
+            <button onclick="handleLogout()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-bold">ലോഗ് ഔട്ട്</button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 mb-8">
+            <div id="menuBooking" onclick="switchSection('booking')" class="menu-card active cursor-pointer bg-slate-100 border-2 p-4 rounded-xl text-center font-bold">1. സീറ്റ് ബുക്കിംഗ്</div>
+            <div id="menuTrips" onclick="switchSection('trips')" class="menu-card cursor-pointer bg-slate-100 border-2 p-4 rounded-xl text-center font-bold">2. അപ്‌കമിംഗ് ട്രിപ്പുകൾ</div>
+            <div id="menuCurrent" onclick="switchSection('current')" class="menu-card cursor-pointer bg-slate-100 border-2 p-4 rounded-xl text-center font-bold">3. ട്രിപ്പ്</div>
+        </div>
+
+        <!-- SEC 1: BOOKING -->
+        <div id="secBooking">
+            <div class="bg-white border rounded-2xl p-6 max-w-2xl mx-auto">
+                <div class="flex justify-between mb-6">
+                    <span class="text-xs bg-slate-100 px-3 py-1 rounded-full">FRONT / മുന്നിൽ</span>
+                    <div class="text-sm">Total: <b id="total-count">45</b> | Booked: <b id="booked-count" class="text-amber-600">0</b></div>
+                </div>
+                <div id="seat-container" class="flex flex-col gap-3 max-w-md mx-auto"></div>
+                <div class="flex justify-center gap-6 mt-6 text-xs">
+                    <div class="flex items-center gap-2"><div class="w-4 h-4 border-2 border-emerald-500 bg-emerald-50 rounded"></div> Available</div>
+                    <div class="flex items-center gap-2"><div class="w-4 h-4 bg-rose-500 rounded"></div> Booked</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEC 2: TRIPS -->
+        <div id="secTrips" class="hidden">
+            <div class="bg-slate-100 p-5 rounded-xl mb-6">
+                <h3 class="font-bold mb-3">പുതിയ ട്രിപ്പ് ചേർക്കുക</h3>
+                <div class="grid sm:grid-cols-3 gap-3">
+                    <input id="tripTitleInput" placeholder="വയനാട് ടൂർ" class="p-3 border rounded-lg">
+                    <input id="tripDateInput" placeholder="ഒക്ടോബർ 25, 2026" class="p-3 border rounded-lg">
+                    <input id="tripImgInput" placeholder="Image URL" class="p-3 border rounded-lg">
+                </div>
+                <button onclick="addNewTrip()" class="mt-3 bg-indigo-600 text-white px-5 py-2 rounded-lg font-bold">ആഡ് ചെയ്യുക</button>
+            </div>
+            <div id="tripsGrid" class="grid sm:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- SEC 3: CURRENT -->
+        <div id="secCurrent" class="hidden">
+            <div class="bg-green-50 border border-green-200 p-6 rounded-xl">
+                <h3 class="font-bold text-green-800 mb-3">നിലവിലുള്ള ട്രിപ്പ്</h3>
+                <p><b>പേര്:</b>Mookambika temple</p>
+                <p><b>സമയം:</b> രാവിലെ 05:00</p>
+                <p><b>Date:</b>14 November 2026<p>
+                <p><b>ഡ്രൈവർ:</b> രാഹുൽ - 9876543210</p>
+                <p><b>price per seat:</b> 4800</p>
+                <p><b>Route:</b> Vadakkum nathan -> parashinikadavu temple -> udupi ->murudeshwar temple -> mookambika temple</b> </p>
+                <p><b>Return Date:</b> 17 November 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="booking-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm">
+            <h3 class="font-bold text-lg mb-4">Book Seat <span id="modal-seat-num" class="text-indigo-600"></span></h3>
+            <input id="passenger-name" placeholder="പേര്" class="w-full p-3 border rounded-xl mb-3" required>
+            <input id="passenger-phone" placeholder="ഫോൺ നമ്പർ" class="w-full p-3 border rounded-xl mb-4" required>
+            <div class="flex gap-2">
+                <button onclick="closeModal()" class="flex-1 border p-3 rounded-xl">Cancel</button>
+                <button onclick="confirmBooking()" class="flex-1 bg-indigo-600 text-white p-3 rounded-xl">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm">
+            <h3 class="font-bold mb-4">Seat <span id="detail-seat-num"></span></h3>
+            <p id="detail-passenger-name" class="font-semibold"></p>
+            <p id="detail-passenger-phone" class="text-sm text-slate-600 mb-4"></p>
+            <button onclick="cancelBooking()" class="w-full bg-rose-600 text-white p-3 rounded-xl">Cancel Booking</button>
+            <button onclick="closeDetailModal()" class="w-full mt-2 border p-3 rounded-xl">Close</button>
+        </div>
+    </div>
+
+<script>
+let bookings = JSON.parse(localStorage.getItem('bus1_bookings') || '{}');
+let trips = JSON.parse(localStorage.getItem('bus_trips') || '[]');
+let activeSeat = null;
+
+function handleLogin(){
+    const u = document.getElementById('usernameInput').value.trim();
+    const p = document.getElementById('passwordInput').value.trim();
+    if(u==="sujith" && p==="2992006"){
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('dashboardPage').classList.remove('hidden');
+        renderSeats(); renderTrips();
+    } else { document.getElementById('errorMsg').innerText="Contact admin for login!"; }
+}
+function handleLogout(){
+    document.getElementById('dashboardPage').classList.add('hidden');
+    document.getElementById('loginPage').classList.remove('hidden');
+}
+
+function switchSection(sec){
+    ['menuBooking','menuTrips','menuCurrent'].forEach(id=>document.getElementById(id).classList.remove('active'));
+    ['secBooking','secTrips','secCurrent'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+    if(sec==='booking'){ document.getElementById('menuBooking').classList.add('active'); document.getElementById('secBooking').classList.remove('hidden'); renderSeats(); }
+    if(sec==='trips'){ document.getElementById('menuTrips').classList.add('active'); document.getElementById('secTrips').classList.remove('hidden'); renderTrips(); }
+    if(sec==='current'){ document.getElementById('menuCurrent').classList.add('active'); document.getElementById('secCurrent').classList.remove('hidden'); }
+}
+
+function renderSeats(){
+    const cont = document.getElementById('seat-container');
+    cont.innerHTML=''; let booked=0;
+    for(let r=0;r<9;r++){
+        const row=document.createElement('div');
+        row.className='grid grid-cols-6 gap-2';
+        const nums=[r*5+5, r*5+4, 'aisle', r*5+3, r*5+2, r*5+1];
+        nums.forEach(n=>{
+            if(n==='aisle'){ const d=document.createElement('div'); row.appendChild(d); return; }
+            const isBooked =!!bookings[n];
+            if(isBooked) booked++;
+            const b=document.createElement('button');
+            b.className=`h-12 rounded-xl font-bold text-sm ${isBooked?'bg-rose-500 text-white':'bg-emerald-50 border-2 border-emerald-500 text-emerald-700'}`;
+            b.innerHTML=`${n}<div class="text-[9px] truncate">${isBooked?bookings[n].name:'Free'}</div>`;
+            b.onclick=()=>onSeatClick(n);
+            row.appendChild(b);
+        });
+        cont.appendChild(row);
+    }
+    document.getElementById('booked-count').innerText=booked;
+    localStorage.setItem('bus1_bookings', JSON.stringify(bookings));
+}
+function onSeatClick(n){
+    activeSeat=n;
+    if(bookings[n]){
+        document.getElementById('detail-seat-num').innerText=n;
+        document.getElementById('detail-passenger-name').innerText=bookings[n].name;
+        document.getElementById('detail-passenger-phone').innerText=bookings[n].phone;
+        document.getElementById('detail-modal').classList.remove('hidden');
+        document.getElementById('detail-modal').classList.add('flex');
+    } else {
+        document.getElementById('modal-seat-num').innerText=n;
+        document.getElementById('booking-modal').classList.remove('hidden');
+        document.getElementById('booking-modal').classList.add('flex');
+    }
+}
+function closeModal(){ document.getElementById('booking-modal').classList.add('hidden'); }
+function closeDetailModal(){ document.getElementById('detail-modal').classList.add('hidden'); }
+function confirmBooking(){
+    const name=document.getElementById('passenger-name').value.trim();
+    const phone=document.getElementById('passenger-phone').value.trim();
+    if(!name||!phone) return alert('Enter name & phone');
+    bookings[activeSeat]={name,phone};
+    closeModal(); renderSeats();
+    document.getElementById('passenger-name').value=''; document.getElementById('passenger-phone').value='';
+}
+function cancelBooking(){ delete bookings[activeSeat]; closeDetailModal(); renderSeats(); }
+
+function addNewTrip(){
+    const title=document.getElementById('tripTitleInput').value;
+    const date=document.getElementById('tripDateInput').value;
+    const img=document.getElementById('tripImgInput').value || 'https://picsum.photos/400/200';
+    if(!title) return alert('Enter title');
+    trips.push({title,date,img}); localStorage.setItem('bus_trips', JSON.stringify(trips));
+    document.getElementById('tripTitleInput').value=''; document.getElementById('tripDateInput').value=''; document.getElementById('tripImgInput').value='';
+    renderTrips();
+}
+function renderTrips(){
+    const grid=document.getElementById('tripsGrid');
+    grid.innerHTML = trips.length? '' : '<p class="text-slate-400">No trips yet</p>';
+    trips.forEach((t,i)=>{
+        grid.innerHTML+=`<div class="border rounded-xl overflow-hidden"><img src="${t.img}" class="w-full h-36 object-cover"><div class="p-3"><b>${t.title}</b><p class="text-xs text-slate-500">${t.date}</p><button onclick="deleteTrip(${i})" class="text-xs text-red-500 mt-2">Delete</button></div></div>`;
+    });
+}
+function deleteTrip(i){ trips.splice(i,1); localStorage.setItem('bus_trips', JSON.stringify(trips)); renderTrips(); }
+</script>
+</body>
+</html>
